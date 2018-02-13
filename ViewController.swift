@@ -22,18 +22,45 @@ extension ViewController: UITableViewDelegate
         cell.foodNameLabel.text = menuInfo[indexPath.row].foodName
         cell.foodPriceLabel.text = menuInfo[indexPath.row].foodPrice
         
+        cell.contentView.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.25).cgColor
+        cell.contentView.layer.shadowOffset = CGSize(width: 0, height: 2)
+        cell.contentView.layer.shadowOpacity = 1.0
+        cell.contentView.layer.shadowRadius = 0.0
+        cell.contentView.layer.masksToBounds = false
+        cell.contentView.layer.cornerRadius = 4.0
+        
+        let longPressGesture: UILongPressGestureRecognizer = {
+            let gesture = UILongPressGestureRecognizer()
+            gesture.addTarget(self, action: #selector(self.handleLongPressGetureForRow(v:)))
+            gesture.delaysTouchesBegan = false
+            gesture.cancelsTouchesInView = false
+            gesture.numberOfTouchesRequired = 1
+            gesture.minimumPressDuration = 0.2
+            return gesture
+        }()
+        cell.addGestureRecognizer(longPressGesture)
+        cell.tag = indexPath.row
+        
         return cell
     }
-
+    @objc func handleLongPressGetureForRow(v: UILongPressGestureRecognizer )
+  {
+      print("saghsaghghsgfsgsaghghsaghsaghghsaghashgsasa")
+    }
+    
+    
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat
     {
-        return 32.0
+        return 100.0
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView?
     {
-        let headerCell = tableView.dequeueReusableCell(withIdentifier: "MenuHeaderCell") as! MenuHeaderViewCell
-        return headerCell
+        //let headerCell = tableView.dequeueReusableCell(withIdentifier: "MenuHeaderCell") as! MenuHeaderViewCell
+        
+        let vc =  UIView()
+        vc.backgroundColor = self.colorqw
+        return vc
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat
@@ -46,9 +73,28 @@ extension ViewController: UITableViewDataSource
 {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath)
     {
+        
+        
+        let selectedCell = tableView.cellForRow(at: indexPath) as! TableViewCell
+        UIView.transition(with: selectedCell, duration: 0.6, options: .transitionFlipFromLeft, animations: nil, completion: nil)
+        
         // Deselects the row
         tableView.deselectRow(at: indexPath,
                               animated: true)
+    }
+    
+    
+    @available(iOS 11, *)
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        
+        let action = UIContextualAction(style: .destructive, title: "Delete") { (action, view, bool) in
+            print("Delete")
+            bool(false)
+        }
+        action.image =  #imageLiteral(resourceName: "canPlus")
+        let configuration = UISwipeActionsConfiguration(actions: [action])
+        return configuration
+    
     }
 }
 
@@ -56,10 +102,29 @@ extension ViewController: UIScrollViewDelegate
 {
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
-        
+        return
         print("ddffddfd \(scrollView.contentOffset.y)")
         
-        if scrollView.contentOffset.y > 0 && imageContainerViewHeightConstraint.constant == 223
+        
+        if scrollView.contentOffset.y >= 20*32 && scrollView.contentOffset.y <= (20*32) + 34
+        {
+            
+            print("OKKIKKKKKKKkOKKIKKKKKKKk OKKIKKKKKKKkOKKIKKKKKKKkOKKIKKKKKKKkOKKIKKKKKKKk")
+            
+            var df = dataTableView.headerView(forSection: 0)
+            
+            df?.backgroundColor = UIColor.blue
+            
+            df?.setNeedsDisplay()
+            
+            dataTableView.reloadData()
+        }
+        
+        
+        
+        
+        
+       /* if scrollView.contentOffset.y > 0 && imageContainerViewHeightConstraint.constant == 223
         {
             return
         }
@@ -70,7 +135,7 @@ extension ViewController: UIScrollViewDelegate
             var sd = imageContainerViewHeightConstraint.constant + abs(scrollView.contentOffset.y)
             
             
-            if(sd < 223 )
+            if(sd < 233 )
             {
                 
                 print("path111    1")
@@ -114,7 +179,7 @@ extension ViewController: UIScrollViewDelegate
             
              view.layoutIfNeeded()
             
-        }
+        } */
       
     }
 
@@ -142,7 +207,7 @@ struct MenuInfo
     }
 }
 
-class ViewController: UIViewController
+@objc class ViewController: UIViewController
 {
     @IBOutlet weak var backgroundImageView: UIImageView!
     @IBOutlet weak var dataTableView: UITableView!
@@ -150,7 +215,7 @@ class ViewController: UIViewController
     @IBOutlet weak var imageContainerView: UIView!
     @IBOutlet weak var imageContainerViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var imageView: UIImageView!
-
+    var colorqw:UIColor!
     fileprivate var initialContainerImageViewHeight: CGFloat = 0.0
     
     
@@ -160,6 +225,37 @@ class ViewController: UIViewController
     {
         super.viewDidLoad()
         
+        
+        
+        let userData : [String:Any] = [
+            
+            "email" : "qwwwwww" ,
+            "hasBeenLoggedIn" : false
+            
+        ]
+        
+        UserDefaults.standard.set(userData, forKey: "userData")
+        
+        
+        
+        var rr  = UserDefaults.standard.dictionary(forKey: "userData")
+        
+        print("sdfggdfgdfsgdsgds\(rr)")
+        
+        rr?["hasBeenLoggedIn"] = true
+        
+        
+            UserDefaults.standard.set(rr, forKey: "userData")
+        
+        var ff  = UserDefaults.standard.dictionary(forKey: "userData") as! [String:Any]
+        
+        print("qqqwwww     sdfggdfgdfsgdsgds\(ff)")
+       //  print("after sdfggdfgdfsgdsgds\(rr)")
+        colorqw = UIColor.red;
+        
+        
+        self.dataTableView.estimatedSectionHeaderHeight = 20.0
+        self.dataTableView.contentInset = UIEdgeInsetsMake(-32.0, 0.0, 0.0, 0.0)
         
         for i in 0...20
         {
